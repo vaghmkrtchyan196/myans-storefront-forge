@@ -1,0 +1,1 @@
+INSERT INTO public.categories (name, slug) SELECT 'Մայկաներ', 'maykaner' WHERE NOT EXISTS (SELECT 1 FROM public.categories WHERE slug = 'maykaner');

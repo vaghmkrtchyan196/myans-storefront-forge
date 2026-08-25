@@ -155,9 +155,33 @@ export async function uploadHeroImage(file: File): Promise<string> {
   return path;
 }
 
+/** Replaces one image file in place, keeping its position and main flag. */
+export async function replaceProductImage(
+  imageId: string,
+  productId: string,
+  oldPath: string | null,
+  file: File,
+) {
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const path = `${productId}/${crypto.randomUUID()}.${extension}`;
+  const { error } = await supabase.storage.from(PRODUCT_BUCKET).upload(path, file, {
+    cacheControl: "31536000",
+    upsert: false,
+    contentType: file.type || "image/jpeg",
+  });
+  if (error) throw error;
+  const { error: rowError } = await supabase
+    .from("product_images")
+    .update({ storage_path: path, url: "" })
+    .eq("id", imageId);
+  if (rowError) throw rowError;
+  if (oldPath) await supabase.storage.from(PRODUCT_BUCKET).remove([oldPath]);
+}
+
 export type DashboardStats = {
   productCount: number;
   availableCount: number;
+  unavailableCount: number;
   newOrders: number;
   totalOrders: number;
   totalSales: number;
@@ -175,10 +199,13 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
 
   if (orders.error) throw orders.error;
   const rows = (orders.data ?? []) as { status: string; total_amd: number }[];
+  const productCount = products.count ?? 0;
+  const availableCount = available.count ?? 0;
 
   return {
-    productCount: products.count ?? 0,
-    availableCount: available.count ?? 0,
+    productCount,
+    availableCount,
+    unavailableCount: Math.max(productCount - availableCount, 0),
     newOrders: rows.filter((row) => row.status === "new").length,
     totalOrders: rows.length,
     totalSales: rows
@@ -186,3 +213,4 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
       .reduce((sum, row) => sum + (row.total_amd ?? 0), 0),
   };
 }
+
