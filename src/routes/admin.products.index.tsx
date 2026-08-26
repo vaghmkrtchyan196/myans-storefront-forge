@@ -14,7 +14,7 @@ import { deleteProduct, duplicateProduct, setAvailability } from "@/services/adm
 import { fetchCategories, fetchProducts } from "@/services/products";
 import type { ProductFilters } from "@/services/products";
 
-export const Route = createFileRoute("/admin/products")({
+export const Route = createFileRoute("/admin/products/")({
   component: AdminProducts,
 });
 
