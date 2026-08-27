@@ -15,6 +15,15 @@ import { fetchCategories, fetchProducts } from "@/services/products";
 import type { ProductFilters } from "@/services/products";
 
 export const Route = createFileRoute("/admin/products/")({
+  head: () => ({
+    meta: [
+      { title: "MYANS Ադմին — Ապրանքներ" },
+      { name: "description", content: "MYANS խանութի ապրանքների կառավարում։" },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "MYANS Ադմին — Ապրանքներ" },
+      { property: "og:description", content: "MYANS խանութի ապրանքների կառավարում։" },
+    ],
+  }),
   component: AdminProducts,
 });
 

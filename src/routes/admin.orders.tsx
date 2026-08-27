@@ -10,6 +10,15 @@ import type { OrderStatus } from "@/lib/types";
 import { fetchOrders, updateOrderStatus } from "@/services/orders";
 
 export const Route = createFileRoute("/admin/orders")({
+  head: () => ({
+    meta: [
+      { title: "MYANS Ադմին — Պատվերներ" },
+      { name: "description", content: "MYANS խանութի պատվերների կառավարում։" },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "MYANS Ադմին — Պատվերներ" },
+      { property: "og:description", content: "MYANS խանութի պատվերների կառավարում։" },
+    ],
+  }),
   component: AdminOrders,
 });
 

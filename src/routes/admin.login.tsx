@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { adminExists, createFirstAdmin } from "@/lib/admin-setup.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/login")({
@@ -26,11 +27,13 @@ function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [needsSetup, setNeedsSetup] = useState(false);
 
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => {
       if (data.user) navigate({ to: "/admin", replace: true });
     });
+    void adminExists().then((result) => setNeedsSetup(!result.exists));
   }, [navigate]);
 
   async function onSubmit(event: React.FormEvent) {
@@ -51,6 +54,37 @@ function AdminLogin() {
     }
     toast.success("Բարի գալուստ։");
     navigate({ to: "/admin", replace: true });
+  }
+
+  async function onCreateAdmin() {
+    if (!email.trim() || password.length < 8) {
+      toast.error("Էլ․ փոստը և առնվազն 8 նիշանոց գաղտնաբառը պարտադիր են։");
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = await createFirstAdmin({ data: { email: email.trim(), password } });
+      if (!result.ok) {
+        toast.error(result.message);
+        setNeedsSetup(false);
+        return;
+      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error) {
+        toast.success("Հաշիվը ստեղծվեց։ Մուտք գործեք։");
+        setNeedsSetup(false);
+        return;
+      }
+      toast.success("Ադմին հաշիվը ստեղծվեց։");
+      navigate({ to: "/admin", replace: true });
+    } catch {
+      toast.error("Չհաջողվեց ստեղծել ադմին հաշիվը։");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -87,6 +121,22 @@ function AdminLogin() {
           <Button type="submit" className="h-12 w-full" disabled={loading}>
             {loading ? "Մուտք…" : "Մուտք գործել"}
           </Button>
+          {needsSetup && (
+            <div className="space-y-2 border-t border-border pt-4">
+              <p className="text-xs text-muted-foreground">
+                Ադմին հաշիվ դեռ գոյություն չունի։ Ստեղծեք առաջինը վերևի տվյալներով։
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-12 w-full"
+                disabled={loading}
+                onClick={() => void onCreateAdmin()}
+              >
+                Ստեղծել ադմին հաշիվ
+              </Button>
+            </div>
+          )}
         </form>
       </div>
     </div>

@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Resolves whether the signed-in user is an administrator.
- * The first signed-in account may claim admin rights; afterwards the
- * database refuses to grant them to anyone else.
+ * Admin rights come from the user_roles table; the first admin account is
+ * created once through the secure setup on /admin/login.
  */
 export function useIsAdmin() {
   return useQuery({
@@ -21,10 +21,7 @@ export function useIsAdmin() {
         .eq("user_id", userData.user.id)
         .eq("role", "admin")
         .maybeSingle();
-      if (roles) return true;
-
-      const { data: claimed } = await supabase.rpc("claim_admin");
-      return claimed === true;
+      return Boolean(roles);
     },
   });
 }

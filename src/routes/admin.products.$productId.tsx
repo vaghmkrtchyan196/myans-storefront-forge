@@ -12,6 +12,15 @@ import { deleteProduct, updateProduct } from "@/services/admin";
 import { fetchProduct } from "@/services/products";
 
 export const Route = createFileRoute("/admin/products/$productId")({
+  head: () => ({
+    meta: [
+      { title: "MYANS Ադմին — Ապրանքի խմբագրում" },
+      { name: "description", content: "Խմբագրել MYANS ապրանքը։" },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "MYANS Ադմին — Ապրանքի խմբագրում" },
+      { property: "og:description", content: "Խմբագրել MYANS ապրանքը։" },
+    ],
+  }),
   component: EditProduct,
 });
 
