@@ -8,6 +8,15 @@ import type { ProductFormValues } from "@/components/admin/ProductForm";
 import { createProduct } from "@/services/admin";
 
 export const Route = createFileRoute("/admin/products/new")({
+  head: () => ({
+    meta: [
+      { title: "MYANS Ադմին — Նոր ապրանք" },
+      { name: "description", content: "Ավելացնել նոր ապրանք MYANS խանութում։" },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "MYANS Ադմին — Նոր ապրանք" },
+      { property: "og:description", content: "Ավելացնել նոր ապրանք MYANS խանութում։" },
+    ],
+  }),
   component: NewProduct,
 });
 

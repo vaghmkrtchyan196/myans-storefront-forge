@@ -12,6 +12,15 @@ import { uploadHeroImage } from "@/services/admin";
 import { fetchHeroImage, fetchSetting, saveSetting, HERO_IMAGE_KEY } from "@/services/settings";
 
 export const Route = createFileRoute("/admin/settings")({
+  head: () => ({
+    meta: [
+      { title: "MYANS Ադմին — Կարգավորումներ" },
+      { name: "description", content: "MYANS խանութի կարգավորումներ։" },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "MYANS Ադմին — Կարգավորումներ" },
+      { property: "og:description", content: "MYANS խանութի կարգավորումներ։" },
+    ],
+  }),
   component: AdminSettings,
 });
 

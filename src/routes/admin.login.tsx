@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { adminExists, createFirstAdmin } from "@/lib/admin-setup.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/login")({
@@ -120,6 +121,22 @@ function AdminLogin() {
           <Button type="submit" className="h-12 w-full" disabled={loading}>
             {loading ? "Մուտք…" : "Մուտք գործել"}
           </Button>
+          {needsSetup && (
+            <div className="space-y-2 border-t border-border pt-4">
+              <p className="text-xs text-muted-foreground">
+                Ադմին հաշիվ դեռ գոյություն չունի։ Ստեղծեք առաջինը վերևի տվյալներով։
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-12 w-full"
+                disabled={loading}
+                onClick={() => void onCreateAdmin()}
+              >
+                Ստեղծել ադմին հաշիվ
+              </Button>
+            </div>
+          )}
         </form>
       </div>
     </div>
