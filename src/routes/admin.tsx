@@ -21,10 +21,7 @@ export const Route = createFileRoute("/admin")({
       .eq("user_id", data.user.id)
       .eq("role", "admin")
       .maybeSingle();
-    if (!role) {
-      const { data: claimed } = await supabase.rpc("claim_admin");
-      if (claimed !== true) throw redirect({ to: "/admin/login" });
-    }
+    if (!role) throw redirect({ to: "/admin/login" });
   },
   component: AdminLayout,
 });
