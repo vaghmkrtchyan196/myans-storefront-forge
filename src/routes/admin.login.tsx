@@ -26,11 +26,13 @@ function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [needsSetup, setNeedsSetup] = useState(false);
 
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => {
       if (data.user) navigate({ to: "/admin", replace: true });
     });
+    void adminExists().then((result) => setNeedsSetup(!result.exists));
   }, [navigate]);
 
   async function onSubmit(event: React.FormEvent) {
@@ -51,6 +53,37 @@ function AdminLogin() {
     }
     toast.success("Բարի գալուստ։");
     navigate({ to: "/admin", replace: true });
+  }
+
+  async function onCreateAdmin() {
+    if (!email.trim() || password.length < 8) {
+      toast.error("Էլ․ փոստը և առնվազն 8 նիշանոց գաղտնաբառը պարտադիր են։");
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = await createFirstAdmin({ data: { email: email.trim(), password } });
+      if (!result.ok) {
+        toast.error(result.message);
+        setNeedsSetup(false);
+        return;
+      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error) {
+        toast.success("Հաշիվը ստեղծվեց։ Մուտք գործեք։");
+        setNeedsSetup(false);
+        return;
+      }
+      toast.success("Ադմին հաշիվը ստեղծվեց։");
+      navigate({ to: "/admin", replace: true });
+    } catch {
+      toast.error("Չհաջողվեց ստեղծել ադմին հաշիվը։");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
